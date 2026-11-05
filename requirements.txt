@@ -1,0 +1,6 @@
+pymilvus>=2.5
+milvus-lite
+ollama
+EbookLib
+beautifulsoup4
+lxml
