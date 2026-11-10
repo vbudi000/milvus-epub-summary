@@ -15,6 +15,7 @@ import re
 import sys
 import warnings
 from pathlib import Path
+from typing import cast
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -106,6 +107,12 @@ def ingest(client: MilvusClient, name: str, epub_path: Path, embed_model: str) -
     for chapter_title, text in chapters:
         for chunk in chunk_text(text):
             records.append({"chapter": chapter_title[:500], "text": chunk})
+    summary_path = epub_path.parent / f"{epub_path.stem}_summary.md"
+    if summary_path.is_file():
+        summary_text = summary_path.read_text(encoding="utf-8")
+        summary_chunks = chunk_text(summary_text)
+        records.extend({"chapter": "Book summary", "text": c} for c in summary_chunks)
+        print(f"Found {summary_path.name}: adding {len(summary_chunks)} summary chunks.")
     if not records:
         sys.exit("No text could be extracted from the EPUB.")
     print(f"'{book_title}': {len(chapters)} sections, {len(records)} chunks. Embedding ...")
@@ -196,7 +203,7 @@ def main() -> None:
 
     try:
         # Start every invocation from a clean database.
-        for old in client.list_collections():
+        for old in cast(list[str], client.list_collections()):
             client.drop_collection(old)
         ingest(client, name, args.epub, args.embed_model)
         chat_loop(client, name, args)

@@ -348,6 +348,11 @@ def main() -> None:
 
     book_summary_file.write_text(file_content)
 
+    # 6. Move the book summary next to the original EPUB as <epub name>_summary.md
+    final_summary_file = args.epub.parent / f"{args.epub.stem}_summary.md"
+    shutil.move(str(book_summary_file), str(final_summary_file))
+    print(f"Book summary saved to '{final_summary_file}'.")
+
 
 if __name__ == "__main__":
     main()
