@@ -4,3 +4,4 @@ __pycache__/
 *.db
 .milvus_*
 *.epub
+out/
